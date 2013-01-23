@@ -35,7 +35,7 @@ The bus core itself is entirely synchronous, but it is designed so that asynchro
 
 Can it leak memory?
 Each Activity or Fragment gets its own BusContext when it calls Bus.attach(). The BusContext cleans up all the Subscribers when onDetach() is called.
-Providers and Values posted to the bus via publish() are intended to have app-scope and be finite in number.
+Providers and Values posted to the bus via publish() are app-scope, but unless you abuse Channels (see below) there will be only one provider or value per class.
 
 What if my Providers need parameters?
 There are two ways to do this:
@@ -44,6 +44,9 @@ There are two ways to do this:
 
 What if I want to write a value to an external API?
 update(T value) allows you to pass a value for update to a Provider
+
+What if I want more than one object of a given class on the Bus?
+If you really need this, you can publish & subscribe using a channelId String. An alternative is to create a few wrapper classes for the different values.
 
 
 
