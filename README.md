@@ -37,11 +37,20 @@ Other good examples are Navigation & Preferences
 Activities and Fragments should call Bus.attach(this) and Bus.detach(this), usually in onResume() and onPause(). That's it. Bus.attach() can be called in onCreate() also (attaching twice is harmless).
 
 #### What about threading?
-The bus core itself is entirely synchronous, but it is designed so that asynchronous Providers are very easy to implement.
+The bus core itself is entirely synchronous, but it is designed so that asynchronous Providers are very easy to implement: start an AsyncTask in the provide() method and call subscriber.receive() in the onPostExecute().
+Or you can use AsyncProvider, which does the AsyncTask for you:
+```
+  bus.publish(User.class, new AsyncProvider<User>() {
+    public User retrieveValue(String[] params) {
+      return doSomeNetworkCall();
+    }
+  });  
+
+```
 
 #### Can it leak memory?
 Each Activity or Fragment gets its own BusContext when it calls Bus.attach(). The BusContext cleans up all the Subscribers when onDetach() is called.
-Providers and Values posted to the bus via publish() are app-scope, but unless you abuse Channels (see below) there will be only one provider or value per class.
+Providers and Values posted to the bus via publish() are app-scope, but there will be only one provider or value per class. Using channels allows you to have more than one per class (see below), but the intention here is that the number of channels is small.
 
 #### What if my Providers need parameters?
 There are two ways to do this:
@@ -49,7 +58,7 @@ There are two ways to do this:
 2) Providers can pull their parameters from the bus
 
 #### What if I want to write a value to an external API?
-update(T value) allows you to pass a value for update to a Provider
+update(T value) allows you to pass a value for update to a Provider. The Provider can then publish the new value, either directly, or by getting it from the external API.
 
 #### What if I want more than one object of a given class on the Bus?
 If you really need this, you can publish & subscribe using the extra optional 'channelId' String parameter. An alternative is to create a few wrapper classes for the different values.
