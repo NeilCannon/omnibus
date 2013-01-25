@@ -29,6 +29,7 @@ Note that there is no simple 'get' method to return a value from the Bus - a Sub
 This encourages a style of programming where the calling code makes less assumptions about which order things happen in, which leads to more robust code.
 It doesn't matter which order publish/subscribe happen in, the Bus will ensure that all Subscribers receive the published value.
 This style also means you worry less about what is initialised when and you need less guard checks and flags.
+
 See the demo directory for a simple demo app.
 
 #### Where would I use this?
@@ -60,7 +61,8 @@ There are two ways to do this:
 2. Providers can pull their parameters from the bus
 
 #### What if I want to write a value to an external API?
-update(T value) allows you to pass a value for update to a Provider. The Provider can then publish the new value, either directly, or by getting it from the external API.
+update(T value) allows you to pass a value for update to a Provider. The Provider's update(T) method is called, and it can then publish the new value, either directly, or by getting it from the external API.
+The AsyncProvider convenience class has an updateValue() method that you can override to implement the actual operation (it gets called in a background thread).
 
 #### What if I want more than one object of a given class on the Bus?
 If you really need this, you can publish & subscribe using the extra optional 'channelId' String parameter. An alternative is to create a few wrapper classes for the different values.
