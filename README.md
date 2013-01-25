@@ -1,7 +1,7 @@
 omnibus
 =======
 
-Omnibus is a small, clean Data Bus for Android, allowing the construction of loosely-coupled apps.
+Omnibus is a small, fast, clean Data Bus for Android, allowing the construction of loosely-coupled apps.
 With omnibus, you don't have to worry about things like manually unregistering Listeners, Activity leaks, or the problems that can occur with AsyncTask on a device rotate, for example. 
 
 Activities and Fragments subscribe to receive values of a certain type:
@@ -69,6 +69,10 @@ If you really need this, you can publish & subscribe using the extra optional 'c
 
 #### How do I force a refresh, or clear a value?
 Calling invalidate(Class) will force the Provider to provide a new value, or simply clear the value from the Bus if there is no Provider.
+
+#### How is the performance?
+Omnibus doesn't use reflection or annotations, so it's extremely fast
+
 
 contact: neilacannon@gmail.com
 
