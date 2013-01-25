@@ -70,5 +70,5 @@ If you really need this, you can publish & subscribe using the extra optional 'c
 #### How do I force a refresh, or clear a value?
 Calling invalidate(Class) will force the Provider to provide a new value, or simply clear the value from the Bus if there is no Provider.
 
-contact: neila
+contact: neilacannon@gmail.com
 
