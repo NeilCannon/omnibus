@@ -1,4 +1,6 @@
-package org.fuzzyrobot.omnibus;
+package org.fuzzyrobot.omnibus.provider;
+
+import org.fuzzyrobot.omnibus.core.Subscriber;
 
 /**
  * User: neil

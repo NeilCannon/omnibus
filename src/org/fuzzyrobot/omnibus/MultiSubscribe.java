@@ -1,5 +1,8 @@
 package org.fuzzyrobot.omnibus;
 
+import org.fuzzyrobot.omnibus.core.BusInterface;
+import org.fuzzyrobot.omnibus.core.Subscriber;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

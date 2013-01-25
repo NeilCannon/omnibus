@@ -1,7 +1,9 @@
-package org.fuzzyrobot.omnibus;
+package org.fuzzyrobot.omnibus.core;
 
 import android.app.Fragment;
 import android.util.Log;
+import org.fuzzyrobot.omnibus.MultiSubscribe;
+import org.fuzzyrobot.omnibus.Subscriber2;
 
 import java.util.Map;
 import java.util.WeakHashMap;

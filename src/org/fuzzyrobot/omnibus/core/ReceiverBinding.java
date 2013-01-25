@@ -1,4 +1,4 @@
-package org.fuzzyrobot.omnibus;
+package org.fuzzyrobot.omnibus.core;
 
 import android.util.Log;
 

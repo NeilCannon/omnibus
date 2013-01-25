@@ -1,9 +1,11 @@
-package org.fuzzyrobot.omnibus;
+package org.fuzzyrobot.omnibus.core;
 
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import org.fuzzyrobot.omnibus.MultiSubscribe;
+import org.fuzzyrobot.omnibus.Subscriber2;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,10 @@
-package org.fuzzyrobot.omnibus;
+package org.fuzzyrobot.omnibus.provider;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import org.fuzzyrobot.omnibus.core.Bus;
+import org.fuzzyrobot.omnibus.core.Provider;
+import org.fuzzyrobot.omnibus.core.Subscriber;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,7 +32,6 @@ public abstract class AsyncProvider<T> implements Provider<T>, ValueRetriever<T>
     }
 
     public synchronized void provide(Subscriber<T> subscriber, String[] params) {
-        Log.d(TAG, "provide(");
         if (!Arrays.equals(params, lastParams)) {
             value = null;
         }
@@ -71,13 +73,13 @@ public abstract class AsyncProvider<T> implements Provider<T>, ValueRetriever<T>
 
     protected synchronized AsyncTask startRetrieveTask() {
         retrieveTask = new RetrieveTask();
-        retrieveTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+        retrieveTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
         return retrieveTask;
     }
 
     protected synchronized AsyncTask startUpdateTask(T newValue) {
         updateTask = new UpdateTask(newValue);
-        updateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null);
+        updateTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
         return updateTask;
     }
 

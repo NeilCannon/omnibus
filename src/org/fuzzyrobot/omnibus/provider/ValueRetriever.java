@@ -1,4 +1,4 @@
-package org.fuzzyrobot.omnibus;
+package org.fuzzyrobot.omnibus.provider;
 
 /**
  * User: neil

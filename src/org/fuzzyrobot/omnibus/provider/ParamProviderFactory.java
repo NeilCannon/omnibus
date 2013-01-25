@@ -1,7 +1,9 @@
-package org.fuzzyrobot.omnibus;
+package org.fuzzyrobot.omnibus.provider;
 
 import android.util.Log;
 import android.util.LruCache;
+import org.fuzzyrobot.omnibus.core.Provider;
+import org.fuzzyrobot.omnibus.core.Subscriber;
 
 import java.util.Arrays;
 import java.util.List;

@@ -1,4 +1,4 @@
-package org.fuzzyrobot.omnibus;
+package org.fuzzyrobot.omnibus.core;
 
 import java.util.ArrayList;
 import java.util.Collection;
