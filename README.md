@@ -1,8 +1,8 @@
 omnibus
 =======
 
-Omnibus is a small, clean Data Bus for Android, allowing the construction of loosely-coupled apps.
-With Omnibus, you don't have to worry about things like manually unregistering Listeners, Activity leaks, or the problems that can occur with AsyncTask on a device rotate, for example. 
+Omnibus is a small, fast, clean Data Bus for Android, allowing the construction of loosely-coupled apps.
+With omnibus, you don't have to worry about things like manually unregistering Listeners, Activity leaks, or the problems that can occur with AsyncTask on a device rotate, for example. 
 
 Activities and Fragments subscribe to receive values of a certain type:
 ```
@@ -28,16 +28,16 @@ or via a Provider:
 Note that there is no simple 'get' method to return a value from the Bus - a Subscriber is always required. 
 This encourages a style of programming where the calling code makes less assumptions about which order things happen in, which leads to more robust code.
 It doesn't matter which order publish/subscribe happen in, the Bus will ensure that all Subscribers receive the published value.
-This style also means you worry less about what is initialised when and you need less guard checks and flags.
+This style also means you worry less about what is initialised when and you can focus on the real logic of your app.
 
 See the demo directory for a simple demo app.
 
 #### Where would I use this?
 Anywhere you need to share data between different parts of your app. The most common way is to implement Providers for external (web) APIs that your app calls, and have your Activities/Fragments subscribe to them.
-Other good examples are Navigation & Preferences 
+Other good examples are Navigation & Preferences. 
 
 #### What boilerplate is needed?
-Activities and Fragments should call Bus.attach(this) and Bus.detach(this), usually in onResume() and onPause(). That's it. Bus.attach() can be called in onCreate() also (attaching twice is harmless).
+Activities and Fragments should call Bus.attach(this) and Bus.detach(this), usually in onResume() and onPause(). That's it. Bus.attach() can also be called in onCreate() if needed (attaching twice is harmless).
 
 #### What about threading?
 The bus core itself is entirely synchronous, but it is designed so that asynchronous Providers are very easy to implement: start an AsyncTask in the provide() method and call subscriber.receive() in the onPostExecute().
@@ -70,5 +70,9 @@ If you really need this, you can publish & subscribe using the extra optional 'c
 #### How do I force a refresh, or clear a value?
 Calling invalidate(Class) will force the Provider to provide a new value, or simply clear the value from the Bus if there is no Provider.
 
+#### How is the performance?
+Omnibus doesn't use reflection or annotations, so it's extremely fast
 
+
+contact: neilacannon@gmail.com
 
