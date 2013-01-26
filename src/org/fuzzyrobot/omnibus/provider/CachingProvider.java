@@ -1,5 +1,6 @@
 package org.fuzzyrobot.omnibus.provider;
 
+import android.content.Context;
 import org.fuzzyrobot.omnibus.core.Provider;
 import org.fuzzyrobot.omnibus.core.Subscriber;
 
@@ -24,7 +25,7 @@ public class CachingProvider<T> implements Provider<T> {
         this.delegate = delegate;
     }
 
-    public void provide(final Subscriber<T> subscriber, final String[] params) {
+    public void provide(Context appContext, final Subscriber<T> subscriber, final String[] params) {
         accesses++;
         final String key = getKey(params);
         T value = cacher.get(key);

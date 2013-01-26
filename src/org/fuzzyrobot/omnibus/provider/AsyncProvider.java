@@ -1,5 +1,6 @@
 package org.fuzzyrobot.omnibus.provider;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import org.fuzzyrobot.omnibus.core.Bus;
@@ -31,7 +32,7 @@ public abstract class AsyncProvider<T> implements Provider<T>, ValueRetriever<T>
         this.needsParams = needsParams;
     }
 
-    public synchronized void provide(Subscriber<T> subscriber, String[] params) {
+    public synchronized void provide(Context appContext, Subscriber<T> subscriber, String[] params) {
         if (!Arrays.equals(params, lastParams)) {
             value = null;
         }

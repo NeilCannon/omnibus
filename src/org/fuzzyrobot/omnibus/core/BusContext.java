@@ -1,6 +1,7 @@
 package org.fuzzyrobot.omnibus.core;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.util.Log;
 import org.fuzzyrobot.omnibus.MultiSubscribe;
 import org.fuzzyrobot.omnibus.Subscriber2;
@@ -21,6 +22,7 @@ public class BusContext implements BusInterface {
     private static final String TAG = BusContext.class.getSimpleName();
 
     private final BusInterface parent;
+    private final Context context;
     private Map<Subscriber, ReceiverBinding> receiverBindings = new ConcurrentHashMap<Subscriber, ReceiverBinding>();
 
     private Map<Fragment, BusContext> busContexts = new WeakHashMap<Fragment, BusContext>();
@@ -38,15 +40,16 @@ public class BusContext implements BusInterface {
         receiverBindings.clear();
     }
 
-    public BusContext(BusInterface parent) {
+    public BusContext(BusInterface parent, Context context) {
         this.parent = parent;
+        this.context = context;
         instanceId = instanceCount++;
     }
 
     public BusContext doAttach(Fragment fragment) {
         BusContext busContext = busContexts.get(fragment);
         if (busContext == null) {
-            busContext = new BusContext(this);
+            busContext = new BusContext(this, fragment.getActivity());
             busContexts.put(fragment, busContext);
             attachCount++;
         }

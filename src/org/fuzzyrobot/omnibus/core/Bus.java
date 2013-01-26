@@ -60,20 +60,26 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Bus implements Postable, BusInterface {
     public static final boolean DEBUG = false;
+    static final String TAG = Bus.class.getSimpleName();
+    private static final boolean DUMP = false;
+
     private Map<Context, BusContext> busContexts = new WeakHashMap<Context, BusContext>();
     private Map<Channel, Object> valueBindings = new ConcurrentHashMap<Channel, Object>();
     private Map<Channel, ProviderBinding> providerBindings = new HashMap<Channel, ProviderBinding>();
+    private final Context appContext;
 
-    static Bus instance = new Bus();
-    static final String TAG = Bus.class.getSimpleName();
+    static Bus instance;
     private Handler handler;
-    private static final boolean DUMP = false;
 
-    public static Bus getInstance() {
+    public static Bus getInstance(Context context) {
+        if (instance == null) {
+            instance = new Bus(context);
+        }
         return instance;
     }
 
-    public Bus() {
+    public Bus(Context context) {
+        this.appContext = context.getApplicationContext();
         if (DEBUG && DUMP) {
             if (handler == null) {
                 handler = new Handler();
@@ -89,7 +95,7 @@ public class Bus implements Postable, BusInterface {
     }
 
     public static BusContext attach(Context context) {
-        return getInstance().doAttach(context);
+        return getInstance(context).doAttach(context);
     }
 
     public static BusContext attach(Fragment fragment) {
@@ -97,7 +103,7 @@ public class Bus implements Postable, BusInterface {
     }
 
     public static void detach(Context context) {
-        getInstance().doDetach(context);
+        getInstance(context).doDetach(context);
     }
 
     public static void detach(Fragment fragment) {
@@ -122,11 +128,11 @@ public class Bus implements Postable, BusInterface {
         }
 
         public void provideValue(Channel channel) {
-            provideValue(channel, null);
+            provideValue(null, channel, null);
         }
 
-        public void provideValue(final Channel channel, String[] params) {
-            provider.provide(new Subscriber<T>() {
+        public void provideValue(Context context, final Channel channel, String[] params) {
+            provider.provide(context, new Subscriber<T>() {
                 public void receive(T value) {
                     Log.d(TAG + ".ProviderBinding", "receive(");
 
@@ -156,7 +162,7 @@ public class Bus implements Postable, BusInterface {
     public BusContext doAttach(Context context) {
         BusContext busContext = busContexts.get(context);
         if (busContext == null) {
-            busContext = new BusContext(this);
+            busContext = new BusContext(this, context);
             busContexts.put(context, busContext);
         }
         return busContext;
@@ -269,7 +275,7 @@ public class Bus implements Postable, BusInterface {
         if (providerBinding == null) {
             throw new BusException("No such channel: " + channel);
         }
-        providerBinding.provideValue(channel, params);
+        providerBinding.provideValue(null, channel, params);
     }
 
     public void dump() {

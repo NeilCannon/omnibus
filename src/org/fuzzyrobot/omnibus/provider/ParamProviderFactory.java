@@ -1,5 +1,6 @@
 package org.fuzzyrobot.omnibus.provider;
 
+import android.content.Context;
 import android.util.Log;
 import android.util.LruCache;
 import org.fuzzyrobot.omnibus.core.Provider;
@@ -23,7 +24,7 @@ public abstract class ParamProviderFactory<T> implements Provider<T>, ValueRetri
     }
 
     @Override
-    public void provide(Subscriber<T> subscriber, String[] params) {
+    public void provide(Context appContext, Subscriber<T> subscriber, String[] params) {
         Log.d(TAG, "provide(");
 
         if (params == null && needsParams) {
@@ -40,7 +41,7 @@ public abstract class ParamProviderFactory<T> implements Provider<T>, ValueRetri
             };
             providers.put(key, provider);
         }
-        provider.provide(subscriber, params);
+        provider.provide(appContext, subscriber, params);
     }
 
     @Override

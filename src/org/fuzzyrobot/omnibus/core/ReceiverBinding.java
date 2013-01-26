@@ -1,5 +1,6 @@
 package org.fuzzyrobot.omnibus.core;
 
+import android.content.Context;
 import android.util.Log;
 
 /**
@@ -32,15 +33,15 @@ class ReceiverBinding {
         }
     }
 
-    public void receive(Channel channel1, Object value) {
-        if (this.channel.isAssignableFrom(channel1)) {
+    public void receive(Channel channel, Object value) {
+        if (this.channel.isAssignableFrom(channel)) {
             receive(value);
         }
     }
 
-    public void receive(Channel channel1, Provider provider, String[] params) {
-        if (this.channel.isAssignableFrom(channel1)) {
-            provider.provide(subscriber, params);
+    public void receive(Channel channel, Context context, Provider provider, String[] params) {
+        if (this.channel.isAssignableFrom(channel)) {
+            provider.provide(context, subscriber, params);
         }
     }
 
