@@ -54,6 +54,7 @@ Or you can use AsyncProvider, which does the AsyncTask for you:
 #### Can it leak memory?
 Each Activity or Fragment gets its own BusContext when it calls Bus.attach(). The BusContext cleans up all the Subscribers when onDetach() is called.
 Providers and Values posted to the bus via publish() are app-scope, but there will be only one provider or value per class. Using channels allows you to have more than one per class (see below), but the intention here is that the number of channels is small.
+The main rule to remember is never implement a Provider that has a reference to an Activity. Providers are passed the Application Context when they are invoked, so there is no need to use an Activity to get a Context.
 
 #### What if my Providers need parameters?
 There are two ways to do this:
