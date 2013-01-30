@@ -1,14 +1,14 @@
 package org.fuzzyrobot.omnibus.provider;
 
 import android.content.Context;
-import org.fuzzyrobot.omnibus.core.Provider;
+import org.fuzzyrobot.omnibus.core.ExternalProviderInterface;
 import org.fuzzyrobot.omnibus.core.Subscriber;
 
 /**
  * User: neil
  * Date: 10/11/2012
  */
-public class CachingProvider<T> implements Provider<T> {
+public class CachingProvider<T> implements ExternalProviderInterface<T> {
 
     private final Cacher<String, T> cacher;
     private final ParameterisedProvider<T> delegate;

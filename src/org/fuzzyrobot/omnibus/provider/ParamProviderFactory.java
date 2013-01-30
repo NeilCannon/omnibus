@@ -3,7 +3,7 @@ package org.fuzzyrobot.omnibus.provider;
 import android.content.Context;
 import android.util.Log;
 import android.util.LruCache;
-import org.fuzzyrobot.omnibus.core.Provider;
+import org.fuzzyrobot.omnibus.core.ProviderInterface;
 import org.fuzzyrobot.omnibus.core.Subscriber;
 
 import java.util.Arrays;
@@ -13,10 +13,10 @@ import java.util.List;
  * User: neil
  * Date: 16/11/2012
  */
-public abstract class ParamProviderFactory<T> implements Provider<T>, ValueRetriever<T> {
+public abstract class ParamProviderFactory<T> implements ProviderInterface<T>, ValueRetriever<T> {
     private boolean needsParams = false;
 
-    private LruCache<List<String>, Provider<T>> providers = new LruCache<List<String>, Provider<T>>(5);
+    private LruCache<List<String>, ProviderInterface<T>> providers = new LruCache<List<String>, ProviderInterface<T>>(5);
     private static final String TAG = ParamProviderFactory.class.getSimpleName();
 
     protected ParamProviderFactory(boolean needsParams) {
@@ -31,7 +31,7 @@ public abstract class ParamProviderFactory<T> implements Provider<T>, ValueRetri
             return;
         }
         List<String> key = Arrays.asList(params);
-        Provider<T> provider = providers.get(key);
+        ProviderInterface<T> provider = providers.get(key);
         if (provider == null) {
             provider = new AsyncProvider<T>(needsParams) {
                 @Override

@@ -1,15 +1,18 @@
 package org.fuzzyrobot.omnibus.core;
 
-import android.content.Context;
-
 /**
  * User: neil
- * Date: 09/11/2012
+ * Date: 27/01/2013
  */
-public interface Provider<T> {
-    void provide(Context appContext, Subscriber<T> subscriber, String[] params);
+public abstract class Provider<T> implements ExternalProviderInterface<T> {
 
-    void invalidate();
+    @Override
+    public void invalidate() {
+        // no-op default
+    }
 
-    void update(T value);
+    @Override
+    public void update(T value) {
+        // no-op default
+    }
 }

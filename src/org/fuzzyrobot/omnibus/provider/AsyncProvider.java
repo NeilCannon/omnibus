@@ -3,8 +3,8 @@ package org.fuzzyrobot.omnibus.provider;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
-import org.fuzzyrobot.omnibus.core.Bus;
-import org.fuzzyrobot.omnibus.core.Provider;
+import org.fuzzyrobot.omnibus.core.BusApp;
+import org.fuzzyrobot.omnibus.core.ExternalProviderInterface;
 import org.fuzzyrobot.omnibus.core.Subscriber;
 
 import java.util.Arrays;
@@ -15,7 +15,7 @@ import java.util.Map;
  * User: neil
  * Date: 14/11/2012
  */
-public abstract class AsyncProvider<T> implements Provider<T>, ValueRetriever<T> {
+public abstract class AsyncProvider<T> implements ExternalProviderInterface<T>, ValueRetriever<T> {
     private static final String TAG = AsyncProvider.class.getSimpleName();
 
     private boolean needsParams = false;
@@ -110,7 +110,7 @@ public abstract class AsyncProvider<T> implements Provider<T>, ValueRetriever<T>
                 value = retrieveValue(lastParams);
             } catch (Exception e) {
                 e.printStackTrace();
-                if (Bus.DEBUG) {
+                if (BusApp.DEBUG) {
                     throw new RuntimeException(e);
                 }
             }
@@ -143,7 +143,7 @@ public abstract class AsyncProvider<T> implements Provider<T>, ValueRetriever<T>
                 return updateValue(newValue);
             } catch (Exception e) {
                 e.printStackTrace();
-                if (Bus.DEBUG) {
+                if (BusApp.DEBUG) {
                     throw new RuntimeException(e);
                 }
             }

@@ -1,6 +1,6 @@
 package org.fuzzyrobot.omnibus.core;
 
-import android.app.Fragment;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
@@ -58,27 +58,27 @@ import java.util.concurrent.ConcurrentHashMap;
  * Bus.attach(Fragment) & Bus.detach(Fragment)
  * This ensures that the fragments Receivers are unregistered when it is destroyed
  */
-public class Bus implements Postable, BusInterface {
+public class BusApp implements Postable, BusInterface, BusProviderInterface {
     public static final boolean DEBUG = false;
-    static final String TAG = Bus.class.getSimpleName();
+    static final String TAG = BusApp.class.getSimpleName();
     private static final boolean DUMP = false;
 
     private Map<Context, BusContext> busContexts = new WeakHashMap<Context, BusContext>();
     private Map<Channel, Object> valueBindings = new ConcurrentHashMap<Channel, Object>();
-    private Map<Channel, ProviderBinding> providerBindings = new HashMap<Channel, ProviderBinding>();
+    private Map<Channel, ProviderBindingInterface> providerBindings = new HashMap<Channel, ProviderBindingInterface>();
     private final Context appContext;
 
-    static Bus instance;
+    static BusApp instance;
     private Handler handler;
 
-    public static Bus getInstance(Context context) {
+    public static BusApp getInstance(Context context) {
         if (instance == null) {
-            instance = new Bus(context);
+            instance = new BusApp(context);
         }
         return instance;
     }
 
-    public Bus(Context context) {
+    public BusApp(Context context) {
         this.appContext = context.getApplicationContext();
         if (DEBUG && DUMP) {
             if (handler == null) {
@@ -98,15 +98,15 @@ public class Bus implements Postable, BusInterface {
         return getInstance(context).doAttach(context);
     }
 
-    public static BusContext attach(Fragment fragment) {
-        return attach(fragment.getActivity()).doAttach(fragment);
+    public static BusContext attach(FragmentHolder fragment) {
+        return attach(fragment.getActivity()).doAttach(fragment, fragment.getActivity());
     }
 
     public static void detach(Context context) {
         getInstance(context).doDetach(context);
     }
 
-    public static void detach(Fragment fragment) {
+    public static void detach(FragmentHolder fragment) {
         attach(fragment.getActivity()).doDetach(fragment);
     }
 
@@ -119,45 +119,6 @@ public class Bus implements Postable, BusInterface {
         publish(new Channel(value.getClass(), id), value);
     }
 
-
-    class ProviderBinding<T> {
-        Provider<T> provider;
-
-        ProviderBinding(Provider<T> provider) {
-            this.provider = provider;
-        }
-
-        public void provideValue(Channel channel) {
-            provideValue(null, channel, null);
-        }
-
-        public void provideValue(Context context, final Channel channel, String[] params) {
-            provider.provide(context, new Subscriber<T>() {
-                public void receive(T value) {
-                    Log.d(TAG + ".ProviderBinding", "receive(");
-
-                    propagate(channel, value);
-                }
-            }, params);
-        }
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder();
-            //sb.append("ProviderBinding");
-            sb.append("{provider=").append(BusContext.getShortClassName(provider.toString()));
-            sb.append('}');
-            return sb.toString();
-        }
-
-        public void invalidate() {
-            provider.invalidate();
-        }
-
-        public void update(T value) {
-            provider.update(value);
-        }
-    }
 
     public BusContext doAttach(Context context) {
         BusContext busContext = busContexts.get(context);
@@ -198,7 +159,7 @@ public class Bus implements Postable, BusInterface {
     public <T> void subscribeAndRequest(Class<T> clazz, Subscriber<T> subscriber, String[] params) {
     }
 
-    private void propagate(Channel channel, Object value) {
+    void propagate(Channel channel, Object value) {
         Log.d(TAG, "propagate(");
         for (BusContext busContext : busContexts.values()) {
             busContext.receive(channel, value);
@@ -212,7 +173,7 @@ public class Bus implements Postable, BusInterface {
                 subscriber.receive((T) entry.getValue());
             }
         }
-        for (Map.Entry<Channel, ProviderBinding> entry : providerBindings.entrySet()) {
+        for (Map.Entry<Channel, ProviderBindingInterface> entry : providerBindings.entrySet()) {
             if (channel.isAssignableFrom(entry.getKey())) {
                 entry.getValue().provideValue(channel);
             }
@@ -230,8 +191,16 @@ public class Bus implements Postable, BusInterface {
 
 
     @Override
-    public <T> void publish(Class<T> clazz, Provider<T> provider) {
-        publish(clazz, null, provider);
+    public <T> void provide(Class<T> clazz, Provider<T> provider) {
+        provide(clazz, null, provider);
+    }
+
+    public <T> void provide(Class<T> clazz, ExternalProviderInterface<T> provider) {
+        provide(clazz, null, provider);
+    }
+
+    public void provide(Class clazz, String channelId, ExternalProviderInterface provider) {
+        provide(clazz, channelId, provider, null);
     }
 
     @Override
@@ -248,17 +217,27 @@ public class Bus implements Postable, BusInterface {
     }
 
     @Override
-    public void publish(Class clazz, String channelId, Provider provider) {
+    public void provide(Class clazz, String channelId, Provider provider) {
+        provide(clazz, channelId, provider, null);
+    }
+
+    public <T> void provide(Class<T> clazz, String channelId, ProviderInterface provider, String[] params) {
+        if (isInnerActivityClass(provider)) {
+            throw new BusException("Provider can't be Activity inner class");
+        }
         Channel channel = new Channel(clazz, channelId);
-        providerBindings.put(channel, new ProviderBinding(provider));
+        providerBindings.put(channel, new ProviderBinding<T>(this, provider));
         for (BusContext busContext : busContexts.values()) {
-            busContext.receiveProvider(channel, provider);
+            busContext.receiveProvider(channel, provider, params);
         }
     }
 
-    public void provide(Class clazz, String channelId, Provider provider, String[] params) {
+    public <T> void provide(Class<T> clazz, String channelId, ExternalProviderInterface provider, String[] params) {
+        if (isInnerActivityClass(provider)) {
+            throw new BusException("Provider can't be Activity inner class");
+        }
         Channel channel = new Channel(clazz, channelId);
-        providerBindings.put(channel, new ProviderBinding(provider));
+        providerBindings.put(channel, new ExternalProviderBinding<T>(this, provider));
         for (BusContext busContext : busContexts.values()) {
             busContext.receiveProvider(channel, provider, params);
         }
@@ -271,15 +250,24 @@ public class Bus implements Postable, BusInterface {
     @Override
     public <T> void request(Class<T> clazz, String channelId, String[] params) {
         Channel channel = new Channel(clazz, channelId);
-        ProviderBinding providerBinding = providerBindings.get(channel);
+        ProviderBindingInterface providerBinding = providerBindings.get(channel);
         if (providerBinding == null) {
             throw new BusException("No such channel: " + channel);
         }
         providerBinding.provideValue(null, channel, params);
     }
 
+    public static boolean isInnerActivityClass(Object callback) {
+        Class x = callback.getClass().getEnclosingClass();
+        if (x != null && Activity.class.isAssignableFrom(x)) {
+            Log.e(TAG, "anon class inside Activity");
+            return true;
+        }
+        return false;
+    }
+
     public void dump() {
-        if (!Bus.DEBUG) {
+        if (!BusApp.DEBUG) {
             return;
         }
         Log.d(TAG, ",----------------------------------------------------------------------------------");
@@ -296,7 +284,7 @@ public class Bus implements Postable, BusInterface {
         }
         Log.d(TAG, "|");
 
-        for (Map.Entry<Channel, ProviderBinding> entry : providerBindings.entrySet()) {
+        for (Map.Entry<Channel, ProviderBindingInterface> entry : providerBindings.entrySet()) {
             Log.d(TAG, "| " + entry.getKey() + " --> " + entry.getValue());
             //entry.getValue().dump();
         }

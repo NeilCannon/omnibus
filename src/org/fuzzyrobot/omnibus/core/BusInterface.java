@@ -15,10 +15,6 @@ public interface BusInterface {
 
     void publish(Channel channel, Object value);
 
-    <T> void publish(Class<T> clazz, Provider<T> provider);
-
-    <T> void publish(Class<T> clazz, String channelId, Provider<T> provider);
-
     void invalidate(Class clazz);
 
     void update(Object value);

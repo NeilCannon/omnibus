@@ -1,6 +1,6 @@
 package org.fuzzyrobot.omnibus.core;
 
-import android.app.Fragment;
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 import org.fuzzyrobot.omnibus.MultiSubscribe;
@@ -25,7 +25,7 @@ public class BusContext implements BusInterface {
     private final Context context;
     private Map<Subscriber, ReceiverBinding> receiverBindings = new ConcurrentHashMap<Subscriber, ReceiverBinding>();
 
-    private Map<Fragment, BusContext> busContexts = new WeakHashMap<Fragment, BusContext>();
+    private Map<FragmentHolder, BusContext> busContexts = new WeakHashMap<FragmentHolder, BusContext>();
 
     private int receivedCount;
     private int receiverNotifiedCount;
@@ -46,17 +46,17 @@ public class BusContext implements BusInterface {
         instanceId = instanceCount++;
     }
 
-    public BusContext doAttach(Fragment fragment) {
+    BusContext doAttach(FragmentHolder fragment, Activity activity) {
         BusContext busContext = busContexts.get(fragment);
         if (busContext == null) {
-            busContext = new BusContext(this, fragment.getActivity());
+            busContext = new BusContext(this, activity);
             busContexts.put(fragment, busContext);
             attachCount++;
         }
         return busContext;
     }
 
-    public void doDetach(Fragment fragment) {
+    void doDetach(FragmentHolder fragment) {
         BusContext detached = busContexts.remove(fragment);
         if (detached != null) {
             for (Subscriber subscriber : detached.receiverBindings.keySet()) {
@@ -110,13 +110,13 @@ public class BusContext implements BusInterface {
         parent.subscribe(clazz, channelId, subscriber);
     }
 
-    public void publish(Class clazz, String channelId, Provider provider) {
-        parent.publish(clazz, channelId, provider);
-    }
-
-    public void publish(Class clazz, Provider provider) {
-        parent.publish(clazz, provider);
-    }
+//    public <T> void provide(Class<T> clazz, String channelId, Provider<T> provider) {
+//        parent.provide(clazz, channelId, provider);
+//    }
+//
+//    public <T> void provide(Class<T> clazz, Provider<T> provider) {
+//        provide(clazz, null, provider);
+//    }
 
     public <T> void request(Class<T> clazz, String channelId, String[] params) {
         parent.request(clazz, channelId, params);
@@ -185,18 +185,14 @@ public class BusContext implements BusInterface {
 //        }
 //    }
 
-    public void receiveProvider(Channel channel, Provider provider) {
-        receivedCount++;
-        for (ReceiverBinding receiverBinding : receiverBindings.values()) {
-            receiverBinding.receive(channel, provider);
-            receiverNotifiedCount++;
-        }
+    public void receiveProvider(Channel channel, ProviderInterface provider) {
+        receiveProvider(channel, provider, null);
     }
 
-    public void receiveProvider(Channel channel, Provider provider, String[] params) {
+    public void receiveProvider(Channel channel, ProviderInterface provider, String[] params) {
         receivedCount++;
         for (ReceiverBinding receiverBinding : receiverBindings.values()) {
-            receiverBinding.receive(channel, provider);
+            receiverBinding.receive(channel, context, provider, params);
             receiverNotifiedCount++;
         }
     }
@@ -226,7 +222,7 @@ public class BusContext implements BusInterface {
 
     public void dump(String prefix) {
         String pre = prefix + "    ";
-        if (parent instanceof Bus) {
+        if (parent instanceof BusApp) {
             dump(pre, "instanceCount: " + instanceCount);
             dump(pre, "finalizedCount: " + finalizedCount);
         }
@@ -236,14 +232,14 @@ public class BusContext implements BusInterface {
             String receiver = entry.getKey().toString();
             dump(pre, getShortClassName(receiver) + " --> " + entry.getValue());
         }
-        for (Map.Entry<Fragment, BusContext> entry : busContexts.entrySet()) {
+        for (Map.Entry<FragmentHolder, BusContext> entry : busContexts.entrySet()) {
             dump(pre, entry.getKey() + " --> " + entry.getValue());
             entry.getValue().dump(pre);
         }
     }
 
     private void dump(String prefix, String msg) {
-        Log.d(Bus.TAG, "| " + prefix + msg);
+        Log.d(BusApp.TAG, "| " + prefix + msg);
     }
 
     public static String getShortClassName(String name) {

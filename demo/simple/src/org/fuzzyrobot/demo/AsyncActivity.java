@@ -2,15 +2,14 @@ package org.fuzzyrobot.demo;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.TextView;
 import org.fuzzyrobot.omnibus.api.Bus;
+import org.fuzzyrobot.omnibus.core.BusApp;
 import org.fuzzyrobot.omnibus.core.BusInterface;
 import org.fuzzyrobot.omnibus.core.Subscriber;
 
-public class SimpleActivity extends Activity {
+public class AsyncActivity extends Activity {
 
     private BusInterface bus;
     private EditText input;
@@ -35,21 +34,7 @@ public class SimpleActivity extends Activity {
             }
         });
 
-        input.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                Thing thing = new Thing(s.toString());
-                bus.publish(thing);
-            }
-        });
+        BusApp.getInstance(this).provide(Thing.class, new ThingProvider());
     }
 
     @Override
@@ -57,4 +42,5 @@ public class SimpleActivity extends Activity {
         super.onPause();
         Bus.detach(this);
     }
+
 }

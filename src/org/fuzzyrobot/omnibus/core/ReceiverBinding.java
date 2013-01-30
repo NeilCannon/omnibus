@@ -39,7 +39,7 @@ class ReceiverBinding {
         }
     }
 
-    public void receive(Channel channel, Context context, Provider provider, String[] params) {
+    public void receive(Channel channel, Context context, ProviderInterface provider, String[] params) {
         if (this.channel.isAssignableFrom(channel)) {
             provider.provide(context, subscriber, params);
         }
