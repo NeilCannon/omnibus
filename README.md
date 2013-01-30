@@ -40,7 +40,7 @@ Other good examples are Navigation & Preferences.
 Activities and Fragments should call Bus.attach(this) and Bus.detach(this), usually in onResume() and onPause(). That's it. Bus.attach() can also be called in onCreate() if needed (attaching twice is harmless).
 
 #### What about threading?
-The bus core itself is entirely synchronous, but it is designed so that asynchronous Providers are very easy to implement: start an AsyncTask in the provide() method and call subscriber.receive() in the onPostExecute().
+Subscribers are always called on the main UI thread. Providers are called synchronously, but asynchronous Providers are very easy to implement: start an AsyncTask in the provide() method and call subscriber.receive() in the onPostExecute().
 Or you can use AsyncProvider, which does the AsyncTask for you:
 ```
   bus.publish(User.class, new AsyncProvider<User>() {
@@ -54,6 +54,7 @@ Or you can use AsyncProvider, which does the AsyncTask for you:
 #### Can it leak memory?
 Each Activity or Fragment gets its own BusContext when it calls Bus.attach(). The BusContext cleans up all the Subscribers when onDetach() is called.
 Providers and Values posted to the bus via publish() are app-scope, but there will be only one provider or value per class. Using channels allows you to have more than one per class (see below), but the intention here is that the number of channels is small.
+The main rule to remember is never implement a Provider that has a reference to an Activity. Providers are passed the Application Context when they are invoked, so there is no need to use an Activity to get a Context.
 
 #### What if my Providers need parameters?
 There are two ways to do this:
